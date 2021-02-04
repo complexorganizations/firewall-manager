@@ -12,32 +12,8 @@ function super-user-check() {
 # Check for root
 super-user-check
 
-# Pre-Checks system requirements
-function installing-system-requirements() {
-  if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ] || [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ] || [ "$DISTRO" == "alpine" ]; }; then
-    if { ! [ -x "$(command -v iptables)" ] || ! [ -x "$(command -v hostname)" ]; }; then
-      if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
-        apt-get update && apt-get install iptables hostname -y
-      elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
-        yum update -y && yum install iptables hostnamee -y
-      elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
-        pacman -Syu --noconfirm iptables hostname
-      elif [ "$DISTRO" == "alpine" ]; then
-        apk update && apk add iptables hostname
-      fi
-    fi
-  else
-    echo "Error: $DISTRO not supported."
-    exit
-  fi
-}
-
-# Run the function and check for requirements
-installing-system-requirements
-
 # Detect Operating System
 function dist-check() {
-  # shellcheck disable=SC1090
   if [ -e /etc/os-release ]; then
     # shellcheck disable=SC1091
     source /etc/os-release
@@ -49,45 +25,53 @@ function dist-check() {
 # Check Operating System
 dist-check
 
+# Pre-Checks system requirements
+function installing-system-requirements() {
+  if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ] || [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ] || [ "$DISTRO" == "alpine" ] || [ "$DISTRO" == "freebsd" ]; }; then
+    if { [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v iptables)" ] || [ ! -x "$(command -v bc)" ] || [ ! -x "$(command -v jq)" ] || [ ! -x "$(command -v sed)" ] || [ ! -x "$(command -v zip)" ] || [ ! -x "$(command -v unzip)" ] || [ ! -x "$(command -v grep)" ] || [ ! -x "$(command -v awk)" ] || [ ! -x "$(command -v ip)" ]; }; then
+      if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
+        apt-get update && apt-get install iptables curl coreutils bc jq sed e2fsprogs zip unzip grep gawk iproute2 hostname systemd -y
+      elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
+        yum update -y && yum install epel-release iptables curl coreutils bc jq sed e2fsprogs zip unzip grep gawk iproute2 hostname systemd -y
+      elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
+        pacman -Syu --noconfirm iptables curl bc jq sed zip unzip grep gawk iproute2 hostname systemd
+      elif [ "$DISTRO" == "alpine" ]; then
+        apk update && apk add iptables curl bc jq sed zip unzip grep gawk iproute2 hostname systemd
+      elif [ "$DISTRO" == "freebsd" ]; then
+        pkg update && pkg install curl jq zip unzip gawk
+      fi
+    fi
+  else
+    echo "Error: $DISTRO not supported."
+    exit
+  fi
+}
+
+# Run the function and check for requirements
+installing-system-requirements
+
 # Install
 function install-firewall() {
-    if [ "$DISTRO" == "debian" ]; then
+    if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ] || [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ] || [ "$DISTRO" == "alpine" ] || [ "$DISTRO" == "freebsd" ]; }; then
       apt-get update
       apt-get install haveged fail2ban ufw lsof -y
-    fi
-    if [ "$DISTRO" == "ubuntu" ]; then
-      apt-get update
-      apt-get install haveged fail2ban ufw lsof -y
-    fi
-    if [ "$DISTRO" == "raspbian" ]; then
-      apt-get update
-      apt-get install haveged fail2ban ufw lsof -y
-    fi
-    if [ "$DISTRO" == "arch" ]; then
+    elif [ "$DISTRO" == "arch" ]; then
       pacman -Syu
       pacman -Syu --noconfirm haveged fail2ban lsof ufw
-    fi
-    if [ "$DISTRO" == "fedora" ]; then
+    elif [ "$DISTRO" == "fedora" ]; then
       dnf update -y
       dnf install haveged fail2ban ufw lsof -y
-    fi
-    if [ "$DISTRO" == "centos" ]; then
-      yum update -y
-      yum install haveged fail2ban ufw lsof -y
-    fi
-    if [ "$DISTRO" == "rhel" ]; then
-      yum update -y
-      yum install haveged fail2ban ufw lsof -y
-    fi
-    if [ ! -f "/etc/default/ufw" ]; then
-      sed -i "s|# IPV6=yes;|IPV6=yes;|" /etc/default/ufw
-      ufw default reject incoming
-      ufw default allow outgoing
     fi
 }
 
 # install the basic firewall
 install-firewall
+
+    if [ -f "/etc/default/ufw" ]; then
+      sed -i "s|# IPV6=yes;|IPV6=yes;|" /etc/default/ufw
+      ufw default reject incoming
+      ufw default allow outgoing
+    fi
 
 function secure-ssh() {
   if [ ! -f "~/.ssh/authorized_keys" ]; then
