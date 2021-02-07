@@ -64,9 +64,7 @@ function configure-firewall() {
     sed -i "s|#Port 22|Port 22|" $SSHD_CONFIG
     sed -i "s|#PubkeyAuthentication yes|PubkeyAuthentication yes|" $SSHD_CONFIG
     sed -i "s|#ChallengeResponseAuthentication no|ChallengeResponseAuthentication yes|" $SSHD_CONFIG
-  fi
-  # Enable and turn on UFW
-  if [ -x "$(command -v ufw)" ]; then
+  elif [ -x "$(command -v ufw)" ]; then
     sed -i "s|# IPV6=yes;|IPV6=yes;|" $UFW_CONFIG
     ufw default reject incoming
     ufw default allow outgoing
@@ -78,25 +76,19 @@ configure-firewall
 
 function enable-service() {
   if pgrep systemd-journal; then
-    # ssh
     systemctl enable ssh
     systemctl restart ssh
-    # ufw
     ufw enable
     systemctl enable ufw
     systemctl restart ufw
-    # fail2ban
     systemctl enable fail2ban
     systemctl restart fail2ban
   else
-    # ssh
     service ssh enable
     service ssh restart
-    # ufw
     ufw enable
     service ufw enable
     service ufw restart
-    # Fail2ban
     service fail2ban enable
     service fail2ban restart
   fi
