@@ -64,7 +64,8 @@ function configure-firewall() {
     sed -i "s|#Port 22|Port 22|" $SSHD_CONFIG
     sed -i "s|#PubkeyAuthentication yes|PubkeyAuthentication yes|" $SSHD_CONFIG
     sed -i "s|#ChallengeResponseAuthentication no|ChallengeResponseAuthentication yes|" $SSHD_CONFIG
-  elif [ -x "$(command -v ufw)" ]; then
+  fi
+  if [ -x "$(command -v ufw)" ]; then
     sed -i "s|# IPV6=yes;|IPV6=yes;|" $UFW_CONFIG
     ufw default reject incoming
     ufw default allow outgoing
