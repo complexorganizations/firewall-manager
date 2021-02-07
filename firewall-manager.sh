@@ -55,7 +55,7 @@ function install-firewall() {
 install-firewall
 
 function configure-firewall() {
-  if [ -f "$SSH_CONFIG" ]; then
+  if [ -f "$SSHD_CONFIG" ]; then
     sed -i "s|#PasswordAuthentication yes|PasswordAuthentication no|" $SSHD_CONFIG
     sed -i "s|#PermitEmptyPasswords no|PermitEmptyPasswords no|" $SSHD_CONFIG
     sed -i "s|AllowTcpForwarding yes|AllowTcpForwarding no|" $SSHD_CONFIG
