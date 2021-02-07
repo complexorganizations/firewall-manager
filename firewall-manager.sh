@@ -1,7 +1,7 @@
 #!/bin/bash
 # https://github.com/complexorganizations/server-firewall
 
-# Require script to be run as root (or with sudo)
+# Require script to be run as root
 function super-user-check() {
   if [ "$EUID" -ne 0 ]; then
     echo "You need to run this script as super user."
@@ -25,170 +25,56 @@ function dist-check() {
 # Check Operating System
 dist-check
 
-# Pre-Checks system requirements
-function installing-system-requirements() {
-  if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ] || [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ] || [ "$DISTRO" == "alpine" ] || [ "$DISTRO" == "freebsd" ]; }; then
-    if { [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v iptables)" ] || [ ! -x "$(command -v bc)" ] || [ ! -x "$(command -v jq)" ] || [ ! -x "$(command -v sed)" ] || [ ! -x "$(command -v zip)" ] || [ ! -x "$(command -v unzip)" ] || [ ! -x "$(command -v grep)" ] || [ ! -x "$(command -v awk)" ] || [ ! -x "$(command -v ip)" ]; }; then
-      if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
-        apt-get update && apt-get install iptables curl coreutils bc jq sed e2fsprogs zip unzip grep gawk iproute2 hostname systemd -y
-      elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
-        yum update -y && yum install epel-release iptables curl coreutils bc jq sed e2fsprogs zip unzip grep gawk iproute2 hostname systemd -y
-      elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
-        pacman -Syu --noconfirm iptables curl bc jq sed zip unzip grep gawk iproute2 hostname systemd
-      elif [ "$DISTRO" == "alpine" ]; then
-        apk update && apk add iptables curl bc jq sed zip unzip grep gawk iproute2 hostname systemd
-      elif [ "$DISTRO" == "freebsd" ]; then
-        pkg update && pkg install curl jq zip unzip gawk
-      fi
-    fi
-  else
-    echo "Error: $DISTRO not supported."
-    exit
-  fi
-}
+UFW_CONFIG="/etc/default/ufw"
+SSH_CONFIG="~/.ssh/authorized_keys"
+SSHD_CONFIG="/etc/ssh/sshd_config"
 
-# Run the function and check for requirements
-installing-system-requirements
-
-# Install
+# Install the firewall
 function install-firewall() {
-    if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ] || [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ] || [ "$DISTRO" == "alpine" ] || [ "$DISTRO" == "freebsd" ]; }; then
+  if { [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ]; }; then
+    if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
       apt-get update
       apt-get install haveged fail2ban ufw lsof -y
-    elif [ "$DISTRO" == "arch" ]; then
+    elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
+      yum update -y
+      yum install haveged fail2ban ufw lsof -y
+    elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
       pacman -Syu
-      pacman -Syu --noconfirm haveged fail2ban lsof ufw
-    elif [ "$DISTRO" == "fedora" ]; then
-      dnf update -y
-      dnf install haveged fail2ban ufw lsof -y
+      pacman -Syu --noconfirm haveged fail2ban ufw lsof
+    elif [ "$DISTRO" == "alpine" ]; then
+      apk update
+      apk add haveged fail2ban ufw lsof
+    elif [ "$DISTRO" == "freebsd" ]; then
+      pkg update
+      pkg install haveged fail2ban ufw lsof
     fi
+  fi
 }
 
-# install the basic firewall
+# Install the firewall
 install-firewall
 
-    if [ -f "/etc/default/ufw" ]; then
-      sed -i "s|# IPV6=yes;|IPV6=yes;|" /etc/default/ufw
-      ufw default reject incoming
-      ufw default allow outgoing
-    fi
-
-function secure-ssh() {
-  if [ ! -f "~/.ssh/authorized_keys" ]; then
-      sed -i "s|#PasswordAuthentication yes|PasswordAuthentication no|" /etc/ssh/sshd_config
-      sed -i "s|#PermitEmptyPasswords no|PermitEmptyPasswords no|" /etc/ssh/sshd_config
-      sed -i "s|AllowTcpForwarding yes|AllowTcpForwarding no|" /etc/ssh/sshd_config
-      sed -i "s|X11Forwarding yes|X11Forwarding no|" /etc/ssh/sshd_config
-      sed -i "s|#LogLevel INFO|LogLevel VERBOSE|" /etc/ssh/sshd_config
-      sed -i "s|#Port 22|Port 22|" /etc/ssh/sshd_config
-      sed -i "s|#PubkeyAuthentication yes|PubkeyAuthentication yes|" /etc/ssh/sshd_config
-      sed -i "s|#ChallengeResponseAuthentication no|ChallengeResponseAuthentication yes|" /etc/ssh/sshd_config
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 22/tcp
-    fi
+function configure-firewall() {
+  if [ -f "$SSH_CONFIG" ]; then
+    sed -i "s|#PasswordAuthentication yes|PasswordAuthentication no|" $SSHD_CONFIG
+    sed -i "s|#PermitEmptyPasswords no|PermitEmptyPasswords no|" $SSHD_CONFIG
+    sed -i "s|AllowTcpForwarding yes|AllowTcpForwarding no|" $SSHD_CONFIG
+    sed -i "s|X11Forwarding yes|X11Forwarding no|" $SSHD_CONFIG
+    sed -i "s|#LogLevel INFO|LogLevel VERBOSE|" $SSHD_CONFIG
+    sed -i "s|#Port 22|Port 22|" $SSHD_CONFIG
+    sed -i "s|#PubkeyAuthentication yes|PubkeyAuthentication yes|" $SSHD_CONFIG
+    sed -i "s|#ChallengeResponseAuthentication no|ChallengeResponseAuthentication yes|" $SSHD_CONFIG
   fi
+  # Enable and turn on UFW
+  if [ -x "$(command -v ufw)" ]; then
+    sed -i "s|# IPV6=yes;|IPV6=yes;|" $UFW_CONFIG
+    ufw default reject incoming
+    ufw default allow outgoing
+    ufw allow 22/tcp
+  if
 }
 
-# Secure SSH
-secure-ssh
-
-function secure-web-server() {
-  lsof -i :80 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 80/tcp
-    fi
-  fi
-  lsof -i :443 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 443/tcp
-    fi
-  fi
-}
-
-# Secure Web server
-secure-web-server
-
-function secure-network-apps() {
-  # Wireguard
-  lsof -i :51820 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 51820/udp
-    fi
-  fi
-  # shadowsocks
-  lsof -i :8388 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 8388/udp
-      ufw allow 8388/tcp
-    fi
-  fi
-  # Dns
-  lsof -i :53 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 53/tcp
-      ufw allow 53/udp
-    fi
-  fi
-  # openvpn
-  lsof -i :1194 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 1194/tcp
-      ufw allow 1194/udp
-    fi
-  fi
-  # mongodb
-  lsof -i :27017 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw reject 27017/tcp
-    fi
-  fi
-  # mysql
-  lsof -i :3306 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw reject 3306/tcp
-    fi
-  fi
-  # PostgreSQL
-  lsof -i :5432 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw reject 5432/tcp
-    fi
-  fi
-  # Minecraft
-  lsof -i :25565 >&2
-  if [ $? -eq 1 ]; then
-    if [ ! -f "/etc/default/ufw" ]; then
-      ufw allow 25565/tcp
-      ufw allow 25565/udp
-    fi
-  fi
-}
-
-secure-network-apps
-
-function make-apps-more-secure() {
-  # Nginx
-  if [ ! -f "/etc/nginx/nginx.conf" ]; then
-    sed -i "s|# server_tokens off;|server_tokens off;|" /etc/nginx/nginx.conf
-  fi
-  # Mongodb
-  if [ ! -f "/etc/mongod.conf" ]; then
-    sed -i "s|# port: 27017|port: 27017|" /etc/mongod.conf
-  fi
-  # Fail2ban
-  if [ ! -f "/etc/fail2ban/jail.conf" ]; then
-    sed -i "s|bantime = 600;|bantime = 1800;|" /etc/nginx/nginx.conf
-  fi
-}
+configure-firewall
 
 function enable-service() {
   if pgrep systemd-journal; then
