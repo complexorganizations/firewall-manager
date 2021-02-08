@@ -69,28 +69,40 @@ function configure-firewall() {
     ufw default reject incoming
     ufw default allow outgoing
     ufw allow 22/tcp
-  if
+  fi
 }
 
 configure-firewall
 
 function enable-service() {
-  if pgrep systemd-journal; then
-    systemctl enable ssh
-    systemctl restart ssh
-    ufw enable
-    systemctl enable ufw
-    systemctl restart ufw
-    systemctl enable fail2ban
-    systemctl restart fail2ban
-  else
-    service ssh enable
-    service ssh restart
-    ufw enable
-    service ufw enable
-    service ufw restart
-    service fail2ban enable
-    service fail2ban restart
+  if [ -x "$(command -v ssh)" ]; then
+    if pgrep systemd-journal; then
+      systemctl enable ssh
+      systemctl restart ssh
+    else
+      service ssh enable
+      service ssh restart
+    fi
+  fi
+  if [ -x "$(command -v ufw)" ]; then
+    if pgrep systemd-journal; then
+      ufw enable
+      systemctl enable ufw
+      systemctl restart ufw
+    else
+      ufw enable
+      service ufw enable
+      service ufw restart
+    fi
+  fi
+  if [ -x "$(command -v fail2ban)" ]; then
+    if pgrep systemd-journal; then
+      systemctl enable fail2ban
+      systemctl restart fail2ban
+    else
+      service fail2ban enable
+      service fail2ban restart
+    fi
   fi
 }
 
