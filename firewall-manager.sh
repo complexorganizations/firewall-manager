@@ -26,6 +26,8 @@ dist-check
 
 UFW_CONFIG="/etc/default/ufw"
 SSHD_CONFIG="/etc/ssh/sshd_config"
+FAIL_TO_BAN_CONFIG="/etc/fail2ban/jail.conf"
+NGINX_CONFIG="/etc/nginx/nginx.conf"
 
 # Install the firewall
 function install-firewall() {
@@ -53,6 +55,7 @@ function install-firewall() {
 install-firewall
 
 function configure-firewall() {
+  # SSH
   if [ -f "$SSHD_CONFIG" ]; then
     sed -i "s|#PasswordAuthentication yes|PasswordAuthentication no|" $SSHD_CONFIG
     sed -i "s|#PermitEmptyPasswords no|PermitEmptyPasswords no|" $SSHD_CONFIG
@@ -63,11 +66,24 @@ function configure-firewall() {
     sed -i "s|#PubkeyAuthentication yes|PubkeyAuthentication yes|" $SSHD_CONFIG
     sed -i "s|#ChallengeResponseAuthentication no|ChallengeResponseAuthentication yes|" $SSHD_CONFIG
   fi
+  # UFW
   if [ -x "$(command -v ufw)" ]; then
     sed -i "s|# IPV6=yes;|IPV6=yes;|" $UFW_CONFIG
     ufw default reject incoming
     ufw default allow outgoing
     ufw allow 22/tcp
+  fi
+  # Fail2Ban
+  if [ -x "$(command -v fail2ban)" ]; then
+  if [ -f "$FAIL_TO_BAN_CONFIG" ]; then
+    sed -i "s|bantime = 600;|bantime = 1800;|" $FAIL_TO_BAN_CONFIG
+  fi
+  fi
+  # Nginx
+  if [ -x "$(command -v nginx)" ]; then
+  if [ -f "$NGINX_CONFIG" ]; then	
+    sed -i "s|# server_tokens off|server_tokens off|" $NGINX_CONFIG
+  fi
   fi
 }
 
