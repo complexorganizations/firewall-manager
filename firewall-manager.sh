@@ -95,7 +95,6 @@ function configure-firewall() {
 configure-firewall
 
 function create-user() {
-  # Change from password to ssh key
   if [ ! -f "$FIRWALL_MANAGER" ]; then
     USERNAME="$(openssl rand -hex 10)"
     PASSWORD="$(openssl rand -base64 50)"
@@ -112,7 +111,6 @@ function create-user() {
     echo "Username: $USERNAME"
     echo "SSH Key: $SSH_PRIVATE_KEY"
     echo "Password: $PASSWORD"
-    echo "Root login has been disabled"
   fi
 }
 
