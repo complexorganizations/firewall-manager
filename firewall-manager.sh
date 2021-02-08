@@ -75,15 +75,15 @@ function configure-firewall() {
   fi
   # Fail2Ban
   if [ -x "$(command -v fail2ban)" ]; then
-  if [ -f "$FAIL_TO_BAN_CONFIG" ]; then
-    sed -i "s|bantime = 600;|bantime = 1800;|" $FAIL_TO_BAN_CONFIG
-  fi
+    if [ -f "$FAIL_TO_BAN_CONFIG" ]; then
+      sed -i "s|# bantime = 1h|bantime = 24h|" $FAIL_TO_BAN_CONFIG
+    fi
   fi
   # Nginx
   if [ -x "$(command -v nginx)" ]; then
-  if [ -f "$NGINX_CONFIG" ]; then	
-    sed -i "s|# server_tokens off|server_tokens off|" $NGINX_CONFIG
-  fi
+    if [ -f "$NGINX_CONFIG" ]; then
+      sed -i "s|# server_tokens off|server_tokens off|" $NGINX_CONFIG
+    fi
   fi
 }
 
