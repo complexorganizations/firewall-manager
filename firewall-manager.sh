@@ -31,8 +31,6 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_UPDATE="https://raw.githubusercontent.com/complexorganizations/firewall-manager/main/firewall-manager.sh"
 FIRWALL_MANAGER="/etc/firewall-manager/firewall-manager"
 
-if [ ! -f "$FIRWALL_MANAGER" ]; then
-
   # Install the firewall
   function install-firewall() {
     if { [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ] || [ ! -x "$(command -v openssl)" ]; }; then
@@ -131,7 +129,7 @@ if [ ! -f "$FIRWALL_MANAGER" ]; then
 
   function create-user() {
     # Change from password to ssh key
-    if [ -f "$FIRWALL_MANAGER" ]; then
+    if [ ! -f "$FIRWALL_MANAGER" ]; then
       USERNAME="$(openssl rand -hex 10)"
       PASSWORD="$(openssl rand -base64 50)"
       useradd -m -s /bin/bash $USERNAME -p $PASSWORD
@@ -140,39 +138,3 @@ if [ ! -f "$FIRWALL_MANAGER" ]; then
       echo "Root login has been disabled"
     fi
   }
-
-else
-
-  function what-to-do-next() {
-    echo "What do you want to do?"
-    echo "   1) Show WireGuard"
-    echo "   2) Start WireGuard"
-    echo "   3) Stop WireGuard"
-    echo "   4) Restart WireGuard"
-    echo "   5) Add WireGuard Peer"
-    echo "   6) Remove WireGuard Peer"
-    echo "   7) Reinstall WireGuard"
-    echo "   8) Uninstall WireGuard"
-    echo "   9) Update this script"
-    echo "   10) Backup WireGuard"
-    echo "   11) Restore WireGuard"
-    until [[ "$WIREGUARD_OPTIONS" =~ ^[0-9]+$ ]] && [ "$WIREGUARD_OPTIONS" -ge 1 ] && [ "$WIREGUARD_OPTIONS" -le 11 ]; do
-      read -rp "Select an Option [1-11]: " -e -i 1 WIREGUARD_OPTIONS
-    done
-    case $WIREGUARD_OPTIONS in
-    1) # WG Show
-      wg show
-      ;;
-    2) # Enable & Start Wireguard
-      if pgrep systemd-journal; then
-        systemctl enable wg-quick@$WIREGUARD_PUB_NIC
-        systemctl start wg-quick@$WIREGUARD_PUB_NIC
-      else
-        service wg-quick@$WIREGUARD_PUB_NIC enable
-        service wg-quick@$WIREGUARD_PUB_NIC start
-      fi
-      ;;
-    esac
-  }
-
-fi
