@@ -173,6 +173,9 @@ function ufw-rules() {
       ufw allow 80/tcp
     elif [ "$(lsof -i :443)" ]; then
       ufw allow 443/tcp
+    elif [ "$(lsof -i :53)" ]; then
+      ufw allow 53/tcp
+      ufw allow 53/udp
     fi
   fi
 }
