@@ -31,7 +31,7 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_UPDATE="https://raw.githubusercontent.com/complexorganizations/firewall-manager/main/firewall-manager.sh"
 FIRWALL_MANAGER="/etc/firewall-manager/firewall-manager"
 
-if [ -f "$FIRWALL_MANAGER" ]; then
+if [ ! -f "$FIRWALL_MANAGER" ]; then
 
   # Install the firewall
   function install-firewall() {
