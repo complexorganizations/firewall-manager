@@ -28,7 +28,6 @@ UFW_CONFIG="/etc/default/ufw"
 SSHD_CONFIG="/etc/ssh/sshd_config"
 FAIL_TO_BAN_CONFIG="/etc/fail2ban/jail.conf"
 NGINX_CONFIG="/etc/nginx/nginx.conf"
-FIRWALL_MANAGER_UPDATE="https://raw.githubusercontent.com/complexorganizations/firewall-manager/main/firewall-manager.sh"
 FIRWALL_MANAGER="/etc/firewall-manager/firewall-manager"
 
   # Install the firewall
@@ -132,7 +131,7 @@ FIRWALL_MANAGER="/etc/firewall-manager/firewall-manager"
     if [ ! -f "$FIRWALL_MANAGER" ]; then
       USERNAME="$(openssl rand -hex 10)"
       PASSWORD="$(openssl rand -base64 50)"
-      useradd -m -s /bin/bash $USERNAME -p $PASSWORD
+      useradd -m -s /bin/bash "$USERNAME" -p "$PASSWORD"
       echo "Username: $USERNAME"
       echo "Password: $PASSWORD"
       echo "Root login has been disabled"
