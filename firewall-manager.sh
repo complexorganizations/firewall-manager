@@ -29,22 +29,22 @@ SSHD_CONFIG="/etc/ssh/sshd_config"
 
 # Install the firewall
 function install-firewall() {
-  if { [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ]; }; then
+  if { [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ]; }; then
     if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
       apt-get update
-      apt-get install haveged fail2ban ufw lsof -y
+      apt-get install haveged fail2ban ufw lsof openssh-client openssh-server -y
     elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
       yum update -y
-      yum install haveged fail2ban ufw lsof -y
+      yum install haveged fail2ban ufw lsof openssh-client openssh-server -y
     elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
       pacman -Syu
-      pacman -Syu --noconfirm haveged fail2ban ufw lsof
+      pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-client openssh-server
     elif [ "$DISTRO" == "alpine" ]; then
       apk update
-      apk add haveged fail2ban ufw lsof
+      apk add haveged fail2ban ufw lsof openssh-client openssh-server
     elif [ "$DISTRO" == "freebsd" ]; then
       pkg update
-      pkg install haveged fail2ban ufw lsof
+      pkg install haveged fail2ban ufw lsof openssh-client openssh-server
     fi
   fi
 }
