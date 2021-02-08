@@ -132,9 +132,9 @@ if [ ! -f "$FIRWALL_MANAGER" ]; then
   function create-user() {
     # Change from password to ssh key
     if [ -f "$FIRWALL_MANAGER" ]; then
+      USERNAME="$(openssl rand -hex 10)"
       PASSWORD="$(openssl rand -base64 50)"
-      USERNAME="$(openssl rand -base64 10)"
-      useradd -m -p $PASSWORD -s /bin/bash $USERNAME
+      useradd -m -s /bin/bash $USERNAME -p $PASSWORD
       echo "Username: $USERNAME"
       echo "Password: $PASSWORD"
       echo "Root login has been disabled"
