@@ -179,3 +179,5 @@ function ufw-rules() {
     fi
   fi
 }
+
+ufw-rules
