@@ -94,6 +94,38 @@ function configure-firewall() {
 
 configure-firewall
 
+function create-user() {
+  # Change from password to ssh key
+  if [ ! -f "$FIRWALL_MANAGER" ]; then
+    USERNAME="$(openssl rand -hex 10)"
+    PASSWORD="$(openssl rand -base64 50)"
+    useradd -m -s /bin/bash "$USERNAME" -p "$PASSWORD"
+    SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
+    eval "$(ssh-agent -s)"
+    ssh-keygen -o -a 10000 -t ed25519 -f /home/"$USERNAME"/.ssh/id_ed25519 -C "$USERNAME@$SERVER_HOST"
+    ssh-add /home/"$USERNAME"/.ssh/id_ed25519
+    SSH_PRIVATE_KEY="$(cat /home/"$USERNAME"/.ssh/id_ed25519)"
+    SSH_PUBLIC_KEY="$(cat /home/"$USERNAME"/.ssh/id_ed25519.pub)"
+    rm -f /home/"$USERNAME"/.ssh/authorized_keys
+    echo "$SSH_PUBLIC_KEY" >>/home/"$USERNAME"/.ssh/authorized_keys
+    chmod 600 /home/"$USERNAME"/.ssh/authorized_keys
+    echo "Username: $USERNAME"
+    echo "SSH Key: $SSH_PRIVATE_KEY"
+    echo "Password: $PASSWORD"
+    echo "Root login has been disabled"
+  fi
+}
+
+create-user
+
+function firwall-manager() {
+  if [ ! -f "$FIRWALL_MANAGER" ]; then
+    echo "Firewall Manager: True" >> $FIRWALL_MANAGER
+  fi
+}
+
+firwall-manager
+
 function enable-service() {
   if [ -x "$(command -v ssh)" ]; then
     if pgrep systemd-journal; then
@@ -127,35 +159,3 @@ function enable-service() {
 }
 
 enable-service
-
-function create-user() {
-  # Change from password to ssh key
-  if [ ! -f "$FIRWALL_MANAGER" ]; then
-    USERNAME="$(openssl rand -hex 10)"
-    PASSWORD="$(openssl rand -base64 50)"
-    useradd -m -s /bin/bash "$USERNAME" -p "$PASSWORD"
-    SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
-    eval "$(ssh-agent -s)"
-    ssh-keygen -o -a 10000 -t ed25519 -f /home/"$USERNAME"/.ssh/id_ed25519 -C "$USERNAME@$SERVER_HOST"
-    ssh-add /home/"$USERNAME"/.ssh/id_ed25519
-    SSH_PRIVATE_KEY="$(cat /home/"$USERNAME"/.ssh/id_ed25519)"
-    SSH_PUBLIC_KEY="$(cat /home/"$USERNAME"/.ssh/id_ed25519.pub)"
-    rm -f /home/"$USERNAME"/.ssh/authorized_keys
-    echo "$SSH_PUBLIC_KEY" >>/home/"$USERNAME"/.ssh/authorized_keys
-    chmod 600 /home/"$USERNAME"/.ssh/authorized_keys
-    echo "Username: $USERNAME"
-    echo "SSH Key: $SSH_PRIVATE_KEY"
-    echo "Password: $PASSWORD"
-    echo "Root login has been disabled"
-  fi
-}
-
-create-user
-
-function firwall-manager() {
-  if [ ! -f "$FIRWALL_MANAGER" ]; then
-    echo "Firewall Manager: True" >> $FIRWALL_MANAGER
-  fi
-}
-
-firwall-manager
