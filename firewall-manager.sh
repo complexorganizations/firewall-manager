@@ -31,22 +31,22 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 
 # Install the firewall
 function install-firewall() {
-  if { [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ]; }; then
+  if { [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ] || [ ! -x "$(command -v openssl)" ]; }; then
     if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
       apt-get update
-      apt-get install haveged fail2ban ufw lsof openssh-client openssh-server -y
+      apt-get install haveged fail2ban ufw lsof openssh-client openssh-server openssl -y
     elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
       yum update -y
-      yum install haveged fail2ban ufw lsof openssh-client openssh-server -y
+      yum install haveged fail2ban ufw lsof openssh-client openssh-server openssl -y
     elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
       pacman -Syu
-      pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-client openssh-server
+      pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-client openssh-server openssl
     elif [ "$DISTRO" == "alpine" ]; then
       apk update
-      apk add haveged fail2ban ufw lsof openssh-client openssh-server
+      apk add haveged fail2ban ufw lsof openssh-client openssh-server openssl
     elif [ "$DISTRO" == "freebsd" ]; then
       pkg update
-      pkg install haveged fail2ban ufw lsof openssh-client openssh-server
+      pkg install haveged fail2ban ufw lsof openssh-client openssh-server openssl
     fi
   fi
 }
@@ -60,6 +60,8 @@ function configure-firewall() {
     sed -i "s|#PasswordAuthentication yes|PasswordAuthentication no|" $SSHD_CONFIG
     sed -i "s|#PermitEmptyPasswords no|PermitEmptyPasswords no|" $SSHD_CONFIG
     sed -i "s|AllowTcpForwarding yes|AllowTcpForwarding no|" $SSHD_CONFIG
+    sed -i "s|PermitRootLogin yes|PermitRootLogin no|" $SSHD_CONFIG
+    sed -i "s|#MaxAuthTries 6|MaxAuthTries 3|" $SSHD_CONFIG
     sed -i "s|X11Forwarding yes|X11Forwarding no|" $SSHD_CONFIG
     sed -i "s|#LogLevel INFO|LogLevel VERBOSE|" $SSHD_CONFIG
     sed -i "s|#Port 22|Port 22|" $SSHD_CONFIG
@@ -122,3 +124,14 @@ function enable-service() {
 }
 
 enable-service
+
+
+function create-user() {
+PASSWORD="$(openssl rand -base64 25)"
+USERNAME="$(openssl rand -base64 10)"
+useradd -m -p $PASSWORD -s /bin/bash $USERNAME
+
+echo "Username: $USERNAME"
+echo "Password: $PASSWORD"
+echo "Root login has been disabled"
+}
