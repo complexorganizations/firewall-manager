@@ -25,7 +25,6 @@ function dist-check() {
 dist-check
 
 UFW_CONFIG="/etc/default/ufw"
-SSH_CONFIG="~/.ssh/authorized_keys"
 SSHD_CONFIG="/etc/ssh/sshd_config"
 
 # Install the firewall
