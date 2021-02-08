@@ -3,36 +3,6 @@
 ---
 ### Features
 - Linux hardening
-- 
-- 
-- 
-
----
-### Q&A
-
-How
-- 
-- 
-- 
-- 
-
-Which
-- 
-- 
-- 
--
-
-Is
-- 
-- 
-- 
--
-
-How 
-- 
-- 
-- 
--
 
 ---
 ### Author
