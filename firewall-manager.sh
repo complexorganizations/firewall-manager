@@ -28,7 +28,8 @@ UFW_CONFIG="/etc/default/ufw"
 SSHD_CONFIG="/etc/ssh/sshd_config"
 FAIL_TO_BAN_CONFIG="/etc/fail2ban/jail.conf"
 NGINX_CONFIG="/etc/nginx/nginx.conf"
-FIRWALL_MANAGER="/etc/firewall-manager/firewall-manager"
+FIRWALL_MANAGER_PATH="/etc/firewall-manager"
+FIRWALL_MANAGER="$FIRWALL_MANAGER_PATH/firewall-manager"
 
 # Install the firewall
 function install-firewall() {
@@ -117,8 +118,11 @@ function create-user() {
 create-user
 
 function firwall-manager() {
-  if [ ! -f "$FIRWALL_MANAGER" ]; then
-    echo "Firewall Manager: True" >> $FIRWALL_MANAGER
+  if [ ! -d "$FIRWALL_MANAGER_PATH" ]; then
+    mkdir -p $FIRWALL_MANAGER_PATH
+      if [ ! -f "$FIRWALL_MANAGER" ]; then
+        echo "Firewall Manager: True" >> $FIRWALL_MANAGER
+      fi
   fi
 }
 
