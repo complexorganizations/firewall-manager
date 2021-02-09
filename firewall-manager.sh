@@ -176,6 +176,8 @@ function ufw-rules() {
     elif [ "$(lsof -i :53)" ]; then
       ufw allow 53/tcp
       ufw allow 53/udp
+    elif [ "$(lsof -i UDP:51820)" ]; then
+      ufw allow 51820/udp
     fi
   fi
 }
