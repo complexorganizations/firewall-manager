@@ -169,12 +169,13 @@ enable-service
 
 function ufw-rules() {
   if [ -x "$(command -v ufw)" ]; then
-    if [ "$(lsof -i :80)" ]; then
+    if [ "$(lsof -i TCP:80)" ]; then
       ufw allow 80/tcp
-    elif [ "$(lsof -i :443)" ]; then
+    elif [ "$(lsof -i TCP:443)" ]; then
       ufw allow 443/tcp
-    elif [ "$(lsof -i :53)" ]; then
+    elif [ "$(lsof -i TCP:53)" ]; then
       ufw allow 53/tcp
+    elif [ "$(lsof -i UDP:53)" ]; then
       ufw allow 53/udp
     elif [ "$(lsof -i UDP:51820)" ]; then
       ufw allow 51820/udp
