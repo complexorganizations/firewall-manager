@@ -102,8 +102,8 @@ configure-firewall
 
 function create-user() {
   if [ ! -f "$FIRWALL_MANAGER" ]; then
-    USERNAME="$(openssl rand -hex 10)"
-    PASSWORD="$(openssl rand -base64 50)"
+    USERNAME="$(openssl rand -hex 5)"
+    PASSWORD="$(openssl rand -base64 25)"
     useradd -m -s /bin/bash "$USERNAME" -p "$PASSWORD"
     usermod -aG sudo "$USERNAME"
     SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
