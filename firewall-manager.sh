@@ -104,7 +104,8 @@ function create-user() {
   if [ ! -f "$FIRWALL_MANAGER" ]; then
     USERNAME="$(openssl rand -hex 10)"
     PASSWORD="$(openssl rand -base64 50)"
-    useradd -aG -m -s /bin/bash "$USERNAME" -p "$PASSWORD"
+    useradd -m -s /bin/bash "$USERNAME" -p "$PASSWORD"
+    usermod -aG sudo "$USERNAME"
     SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
     eval "$(ssh-agent -s)"
     ssh-keygen -o -a 10000 -t ed25519 -f /home/"$USERNAME"/.ssh/id_ed25519 -C "$USERNAME@$SERVER_HOST"
