@@ -146,11 +146,11 @@ function enable-service() {
   fi
   if [ -x "$(command -v ufw)" ]; then
     if pgrep systemd-journal; then
-      sudo ufw --force enable
+      ufw --force enable
       systemctl enable ufw
       systemctl restart ufw
     else
-      ufw enable
+      ufw --force enable
       service ufw enable
       service ufw restart
     fi
