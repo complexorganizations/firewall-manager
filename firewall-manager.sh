@@ -37,19 +37,19 @@ function install-firewall() {
     if { [ ! -x "$(command -v sed)" ] || [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v jq)" ] || [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ] || [ ! -x "$(command -v openssl)" ] || [ ! -x "$(command -v lsof)" ]; }; then
       if { [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "raspbian" ] || [ "$DISTRO" == "pop" ] || [ "$DISTRO" == "kali" ] || [ "$DISTRO" == "linuxmint" ]; }; then
         apt-get update
-        apt-get install haveged fail2ban ufw lsof openssh-client openssh-server openssl jq curl sed lsof -y
+        apt-get install haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof -y
       elif { [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "centos" ] || [ "$DISTRO" == "rhel" ]; }; then
         yum update -y
-        yum install haveged fail2ban ufw lsof openssh-client openssh-server openssl jq curl sed lsof -y
+        yum install haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof -y
       elif { [ "$DISTRO" == "arch" ] || [ "$DISTRO" == "manjaro" ]; }; then
         pacman -Syu
-        pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-client openssh-server openssl jq curl sed lsof
+        pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof
       elif [ "$DISTRO" == "alpine" ]; then
         apk update
-        apk add haveged fail2ban ufw lsof openssh-client openssh-server openssl jq curl sed lsof
+        apk add haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof
       elif [ "$DISTRO" == "freebsd" ]; then
         pkg update
-        pkg install haveged fail2ban ufw lsof openssh-client openssh-server openssl jq curl sed lsof
+        pkg install haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof
       fi
     fi
   else
