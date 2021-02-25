@@ -26,7 +26,6 @@ dist-check
 
 UFW_CONFIG="/etc/default/ufw"
 SSHD_CONFIG="/etc/ssh/sshd_config"
-FAIL_TO_BAN_CONFIG="/etc/fail2ban/jail.conf"
 NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="$FIRWALL_MANAGER_PATH/firewall-manager"
@@ -83,12 +82,6 @@ function configure-firewall() {
     ufw default reject incoming
     ufw default allow outgoing
     ufw allow 22/tcp
-  fi
-  # Fail2Ban
-  if [ -x "$(command -v fail2ban)" ]; then
-    if [ -f "$FAIL_TO_BAN_CONFIG" ]; then
-      sed -i "s|# bantime = 1h|bantime = 24h|" $FAIL_TO_BAN_CONFIG
-    fi
   fi
   # Nginx
   if [ -x "$(command -v nginx)" ]; then
