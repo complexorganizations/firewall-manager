@@ -79,7 +79,7 @@ function configure-firewall() {
   # UFW
   if [ -x "$(command -v ufw)" ]; then
     sed -i "s|# IPV6=yes;|IPV6=yes;|" $UFW_CONFIG
-    ufw default reject incoming
+    ufw default allow incoming
     ufw default allow outgoing
     ufw allow 22/tcp
   fi
