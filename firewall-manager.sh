@@ -168,7 +168,7 @@ function ufw-rules() {
     if [ "$(lsof -i UDP:53)" ]; then
       ufw allow 53/udp
     fi
-    fi [ "$(lsof -i UDP:51820)" ]; then
+    if [ "$(lsof -i UDP:51820)" ]; then
       ufw allow 51820/udp
     fi
   fi
