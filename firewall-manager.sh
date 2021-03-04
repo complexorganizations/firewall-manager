@@ -98,10 +98,10 @@ function create-user() {
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
     if [ ! -d "/home/${LINUX_USERNAME}/.ssh/" ]; then
-      mkdir -p /home/${LINUX_USERNAME}/.ssh/
-      chmod 600 /home/${LINUX_USERNAME}/.ssh/
+      mkdir -p /home/"${LINUX_USERNAME}"/.ssh/
+      chmod 600 /home/"${LINUX_USERNAME}"/.ssh/
     fi
-    ssh-keygen -o -a 2500 -t ed25519 -f /home/${LINUX_USERNAME}/.ssh/id_ed25519 -N "${LINUX_PASSWORD}"
+    ssh-keygen -o -a 2500 -t ed25519 -f /home/"${LINUX_USERNAME}"/.ssh/id_ed25519 -N "${LINUX_PASSWORD}"
     PUBLIC_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519.pub)"
     PRIVATE_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >> /home/"${LINUX_USERNAME}"/.ssh/authorized_keys  
