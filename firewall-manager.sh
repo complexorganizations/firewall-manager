@@ -24,11 +24,6 @@ function dist-check() {
 # Check Operating System
 dist-check
 
-SSHD_CONFIG="/etc/ssh/sshd_config"
-NGINX_CONFIG="/etc/nginx/nginx.conf"
-FIRWALL_MANAGER_PATH="/etc/firewall-manager"
-FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
-
 # Install the firewall
 function install-firewall() {
   if { [ "${DISTRO}" == "ubuntu" ] || [ "${DISTRO}" == "debian" ] || [ "${DISTRO}" == "raspbian" ] || [ "${DISTRO}" == "pop" ] || [ "${DISTRO}" == "kali" ] || [ "${DISTRO}" == "linuxmint" ] || [ "${DISTRO}" == "fedora" ] || [ "${DISTRO}" == "centos" ] || [ "${DISTRO}" == "rhel" ] || [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "manjaro" ] || [ "${DISTRO}" == "alpine" ] || [ "${DISTRO}" == "freebsd" ]; }; then
@@ -58,6 +53,12 @@ function install-firewall() {
 
 # Install the firewall
 install-firewall
+
+SSHD_CONFIG="/etc/ssh/sshd_config"
+NGINX_CONFIG="/etc/nginx/nginx.conf"
+FIRWALL_MANAGER_PATH="/etc/firewall-manager"
+FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
+SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
 
 function configure-firewall() {
   # SSH
@@ -109,6 +110,7 @@ function create-user() {
     echo "${PUBLIC_SSH_KEY}" >> /home/"${LINUX_USERNAME}"/.ssh/authorized_keys  
     chmod 600 /home/"${LINUX_USERNAME}"/.ssh/authorized_keys
     echo "Linux Information"
+    echo "IP: ${SERVER_HOST}"
     echo "Username: ${LINUX_USERNAME}"
     echo "Password: ${LINUX_PASSWORD}"
     echo "Public Key: ${PUBLIC_SSH_KEY}"
