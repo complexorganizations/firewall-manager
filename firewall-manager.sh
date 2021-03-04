@@ -103,6 +103,7 @@ function create-user() {
     echo "Linux Information"
     echo "Username: ${LINUX_USERNAME}"
     echo "Password: ${LINUX_PASSWORD}"
+    echo "SSH Keys: ${PUBLIC_SSH_KEY}"
   fi
 }
 
