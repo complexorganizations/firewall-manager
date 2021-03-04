@@ -24,7 +24,6 @@ function dist-check() {
 # Check Operating System
 dist-check
 
-UFW_CONFIG="/etc/default/ufw"
 SSHD_CONFIG="/etc/ssh/sshd_config"
 NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_PATH="/etc/firewall-manager"
@@ -36,19 +35,19 @@ function install-firewall() {
     if { [ ! -x "$(command -v sed)" ] || [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v jq)" ] || [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ] || [ ! -x "$(command -v openssl)" ] || [ ! -x "$(command -v lsof)" ]; }; then
       if { [ "${DISTRO}" == "ubuntu" ] || [ "${DISTRO}" == "debian" ] || [ "${DISTRO}" == "raspbian" ] || [ "${DISTRO}" == "pop" ] || [ "${DISTRO}" == "kali" ] || [ "${DISTRO}" == "linuxmint" ]; }; then
         apt-get update
-        apt-get install haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof -y
+        apt-get install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof -y
       elif { [ "${DISTRO}" == "fedora" ] || [ "${DISTRO}" == "centos" ] || [ "${DISTRO}" == "rhel" ]; }; then
         yum update -y
-        yum install haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof -y
+        yum install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof -y
       elif { [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "manjaro" ]; }; then
         pacman -Syu
-        pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof
+        pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof
       elif [ "${DISTRO}" == "alpine" ]; then
         apk update
-        apk add haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof
+        apk add haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof
       elif [ "${DISTRO}" == "freebsd" ]; then
         pkg update
-        pkg install haveged fail2ban ufw lsof openssh-server openssl jq curl sed lsof
+        pkg install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof
       fi
     fi
   else
@@ -98,6 +97,9 @@ function create-user() {
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
+    sudo -u "${LINUX_USERNAME}" ssh-keygen -o -a 1000 -t ed25519 -f ~/.ssh/id_ed25519 -N "${LINUX_PASSWORD}"
+    PUBLIC_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519.pub)"
+    echo "${PUBLIC_SSH_KEY}" >> /home/"${LINUX_USERNAME}"/.ssh/authorized_keys  
     echo "Linux Information"
     echo "Username: ${LINUX_USERNAME}"
     echo "Password: ${LINUX_PASSWORD}"
