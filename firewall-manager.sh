@@ -103,6 +103,7 @@ function create-user() {
     if [ ! -d "/home/${LINUX_USERNAME}/.ssh/" ]; then
       mkdir -p /home/"${LINUX_USERNAME}"/.ssh/
       chmod 700 /home/"${LINUX_USERNAME}"/.ssh/
+      chown "${LINUX_USERNAME}":"${LINUX_USERNAME}" /home/"${LINUX_USERNAME}"
     fi
     ssh-keygen -o -a 2500 -t ed25519 -f /home/"${LINUX_USERNAME}"/.ssh/id_ed25519 -N "${LINUX_PASSWORD}"
     PUBLIC_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519.pub)"
