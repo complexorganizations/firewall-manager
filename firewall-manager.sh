@@ -99,11 +99,13 @@ function create-user() {
     usermod -aG sudo "${LINUX_USERNAME}"
     sudo -u "${LINUX_USERNAME}" ssh-keygen -o -a 1000 -t ed25519 -f ~/.ssh/id_ed25519 -N "${LINUX_PASSWORD}"
     PUBLIC_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519.pub)"
+    PRIVATE_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >> /home/"${LINUX_USERNAME}"/.ssh/authorized_keys  
     echo "Linux Information"
     echo "Username: ${LINUX_USERNAME}"
     echo "Password: ${LINUX_PASSWORD}"
-    echo "SSH Keys: ${PUBLIC_SSH_KEY}"
+    echo "Public Key: ${PUBLIC_SSH_KEY}"
+    echo "Private Key: ${PRIVATE_SSH_KEY}"
   fi
 }
 
