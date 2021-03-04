@@ -61,21 +61,26 @@ FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
 
 function configure-firewall() {
-  # SSH
   if [ -x "$(command -v sshd)" ]; then
     if [ -f "${SSHD_CONFIG}" ]; then
       rm -f ${SSHD_CONFIG}
     fi
     if [ ! -f "${SSHD_CONFIG}" ]; then
       echo "Include /etc/ssh/sshd_config.d/*.conf
-      PermitRootLogin yes
+      Port 22
       PasswordAuthentication no
-      ChallengeResponseAuthentication no
-      UsePAM yes
-      X11Forwarding yes
+      PermitEmptyPasswords no
+      AllowTcpForwarding no
+      PermitRootLogin no
+      MaxAuthTries 3
+      X11Forwarding no
       PrintMotd no
       AcceptEnv LANG LC_*
-      Subsystem       sftp    /usr/lib/openssh/sftp-server" >>${SSHD_CONFIG}
+      Subsystem sftp /usr/lib/openssh/sftp-server
+      UsePAM yes
+      LogLevel VERBOSE
+      PubkeyAuthentication yes
+      ChallengeResponseAuthentication yes" >>${SSHD_CONFIG}
     fi
   fi
   # UFW
@@ -103,9 +108,9 @@ function create-user() {
     if [ ! -d "/home/${LINUX_USERNAME}/.ssh/" ]; then
       mkdir -p /home/"${LINUX_USERNAME}"/.ssh/
       chmod 700 /home/"${LINUX_USERNAME}"/.ssh/
-      chown "${LINUX_USERNAME}":"${LINUX_USERNAME}" /home/"${LINUX_USERNAME}"
+      chown "${LINUX_USERNAME}":"${LINUX_USERNAME}" /home/"${LINUX_USERNAME}/.ssh"
     fi
-    ssh-keygen -o -a 2500 -t ed25519 -f /home/"${LINUX_USERNAME}"/.ssh/id_ed25519 -N "${LINUX_PASSWORD}"
+    ssh-keygen -o -a 2500 -t ed25519 -f /home/"${LINUX_USERNAME}"/.ssh/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
     PUBLIC_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519.pub)"
     PRIVATE_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >> /home/"${LINUX_USERNAME}"/.ssh/authorized_keys  
