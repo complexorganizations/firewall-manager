@@ -157,13 +157,17 @@ function ufw-rules() {
   if [ -x "$(command -v ufw)" ]; then
     if [ "$(lsof -i TCP:80)" ]; then
       ufw allow 80/tcp
-    elif [ "$(lsof -i TCP:443)" ]; then
+    fi
+    if [ "$(lsof -i TCP:443)" ]; then
       ufw allow 443/tcp
-    elif [ "$(lsof -i TCP:53)" ]; then
+    fi
+    if [ "$(lsof -i TCP:53)" ]; then
       ufw allow 53/tcp
-    elif [ "$(lsof -i UDP:53)" ]; then
+    fi
+    if [ "$(lsof -i UDP:53)" ]; then
       ufw allow 53/udp
-    elif [ "$(lsof -i UDP:51820)" ]; then
+    fi
+    fi [ "$(lsof -i UDP:51820)" ]; then
       ufw allow 51820/udp
     fi
   fi
