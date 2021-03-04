@@ -59,6 +59,8 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
+USER_DIRECTORY="/home/${LINUX_USERNAME}"
+USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
 
 function configure-firewall() {
   if [ -x "$(command -v sshd)" ]; then
@@ -105,16 +107,16 @@ function create-user() {
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
-    if [ ! -d "/home/${LINUX_USERNAME}/.ssh/" ]; then
-      mkdir -p /home/"${LINUX_USERNAME}"/.ssh/
-      chmod 700 /home/"${LINUX_USERNAME}"/.ssh/
-      chown "${LINUX_USERNAME}":"${LINUX_USERNAME}" /home/"${LINUX_USERNAME}/.ssh"
+    if [ ! -d "${USER_SSH_FOLDER}" ]; then
+      mkdir -p "${USER_SSH_FOLDER}"
+      chmod 700 "${USER_SSH_FOLDER}"
+      chown "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_SSH_FOLDER}"
     fi
-    ssh-keygen -o -a 2500 -t ed25519 -f /home/"${LINUX_USERNAME}"/.ssh/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
-    PUBLIC_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519.pub)"
-    PRIVATE_SSH_KEY="$(cat /home/"${LINUX_USERNAME}"/.ssh/id_ed25519)"
-    echo "${PUBLIC_SSH_KEY}" >> /home/"${LINUX_USERNAME}"/.ssh/authorized_keys  
-    chmod 600 /home/"${LINUX_USERNAME}"/.ssh/authorized_keys
+    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
+    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
+    echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
+    chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     echo "Linux Information"
     echo "IP: ${SERVER_HOST}"
     echo "Username: ${LINUX_USERNAME}"
