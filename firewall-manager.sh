@@ -78,10 +78,8 @@ function configure-firewall() {
   fi
   # UFW
   if [ -x "$(command -v ufw)" ]; then
-    sed -i "s|# IPV6=yes;|IPV6=yes;|" ${UFW_CONFIG}
     ufw default allow incoming
     ufw default allow outgoing
-    ufw allow 22/tcp
   fi
   # Nginx
   if [ -x "$(command -v nginx)" ]; then
@@ -155,6 +153,9 @@ enable-service
 
 function ufw-rules() {
   if [ -x "$(command -v ufw)" ]; then
+    if [ "$(lsof -i TCP:22)" ]; then
+      ufw allow 22/tcp
+    fi
     if [ "$(lsof -i TCP:80)" ]; then
       ufw allow 80/tcp
     fi
