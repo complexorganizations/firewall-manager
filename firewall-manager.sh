@@ -63,16 +63,19 @@ function configure-firewall() {
   # SSH
   if [ -x "$(command -v sshd)" ]; then
     if [ -f "${SSHD_CONFIG}" ]; then
-      sed -i "s|PasswordAuthentication yes|PasswordAuthentication no|" ${SSHD_CONFIG}
-      sed -i "s|#PermitEmptyPasswords no|PermitEmptyPasswords no|" ${SSHD_CONFIG}
-      sed -i "s|AllowTcpForwarding yes|AllowTcpForwarding no|" ${SSHD_CONFIG}
-      sed -i "s|PermitRootLogin yes|PermitRootLogin no|" ${SSHD_CONFIG}
-      sed -i "s|#MaxAuthTries 6|MaxAuthTries 3|" ${SSHD_CONFIG}
-      sed -i "s|X11Forwarding yes|X11Forwarding no|" ${SSHD_CONFIG}
-      sed -i "s|#LogLevel INFO|LogLevel VERBOSE|" ${SSHD_CONFIG}
-      sed -i "s|#Port 22|Port 22|" ${SSHD_CONFIG}
-      sed -i "s|#PubkeyAuthentication yes|PubkeyAuthentication yes|" ${SSHD_CONFIG}
-      sed -i "s|#ChallengeResponseAuthentication no|ChallengeResponseAuthentication yes|" ${SSHD_CONFIG}
+      rm -f ${SSHD_CONFIG}
+    fi
+    if [ -f "${SSHD_CONFIG}" ]; then
+      echo "Port 22
+      PasswordAuthentication no
+      PermitEmptyPasswords no
+      AllowTcpForwarding no
+      PermitRootLogin no
+      MaxAuthTries 3
+      X11Forwarding no
+      LogLevel VERBOSE
+      PubkeyAuthentication yes
+      ChallengeResponseAuthentication yes" >>${SSHD_CONFIG}
     fi
   fi
   # UFW
