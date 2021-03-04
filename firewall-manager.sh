@@ -65,7 +65,7 @@ function configure-firewall() {
     if [ -f "${SSHD_CONFIG}" ]; then
       rm -f ${SSHD_CONFIG}
     fi
-    if [ -f "${SSHD_CONFIG}" ]; then
+    if [ ! -f "${SSHD_CONFIG}" ]; then
       echo "Port 22
       PasswordAuthentication no
       PermitEmptyPasswords no
