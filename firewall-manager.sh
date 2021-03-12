@@ -60,7 +60,10 @@ FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
 INTERNAL_SERVER_HOST="$(ip route get 8.8.8.8 | grep src | sed 's/.*src \(.* \)/\1/g' | cut -f1 -d ' ')"
-
+if [ -z "${SERVER_HOST}" ]; then
+  SERVER_HOST="$(ip route get 8.8.8.8 | grep src | sed 's/.*src \(.* \)/\1/g' | cut -f1 -d ' ')"
+fi
+        
 function configure-firewall() {
   if [ -x "$(command -v sshd)" ]; then
     if [ -f "${SSHD_CONFIG}" ]; then
