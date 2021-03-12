@@ -68,21 +68,24 @@ function configure-firewall() {
       rm -f ${SSHD_CONFIG}
     fi
     if [ ! -f "${SSHD_CONFIG}" ]; then
-      echo "Include /etc/ssh/sshd_config.d/*.conf
-      Port 22
+      echo "Port 22
+      PermitRootLogin prohibit-password
+      MaxAuthTries 3
       PasswordAuthentication no
       PermitEmptyPasswords no
-      AllowTcpForwarding no
-      PermitRootLogin no
-      MaxAuthTries 3
+      ChallengeResponseAuthentication no
+      KerberosAuthentication no
+      GSSAPIAuthentication no
       X11Forwarding no
-      PrintMotd no
-      AcceptEnv LANG LC_*
-      Subsystem sftp /usr/lib/openssh/sftp-server
       UsePAM yes
-      LogLevel VERBOSE
-      PubkeyAuthentication yes
-      ChallengeResponseAuthentication yes" >>${SSHD_CONFIG}
+      X11Forwarding yes
+      PrintMotd no
+      PermitUserEnvironment no
+      AllowAgentForwarding no
+      AllowTcpForwarding no
+      PermitTunnel no
+      AcceptEnv LANG LC_*
+      Subsystem       sftp    /usr/lib/openssh/sftp-server" >>${SSHD_CONFIG}
     fi
   fi
   # UFW
