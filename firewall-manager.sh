@@ -60,7 +60,7 @@ FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
 if [ -z "${SERVER_HOST}" ]; then
-  SERVER_HOST="0.0.0.0" 
+  SERVER_HOST="0.0.0.0"
 fi
 
 function configure-firewall() {
