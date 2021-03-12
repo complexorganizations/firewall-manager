@@ -59,9 +59,7 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
-if [ -z "${SERVER_HOST}" ]; then
-  SERVER_HOST="0.0.0.0"
-fi
+INTERNAL_SERVER_HOST="$(ip route get 8.8.8.8 | grep src | sed 's/.*src \(.* \)/\1/g' | cut -f1 -d ' ')"
 
 function configure-firewall() {
   if [ -x "$(command -v sshd)" ]; then
@@ -122,7 +120,8 @@ function create-user() {
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
     echo "Linux Information"
-    echo "IP: ${SERVER_HOST}"
+    echo "External IP: ${SERVER_HOST}"
+    echo "Internal IP: ${INTERNAL_SERVER_HOST}"
     echo "Username: ${LINUX_USERNAME}"
     echo "Password: ${LINUX_PASSWORD}"
     echo "Public Key: ${PUBLIC_SSH_KEY}"
