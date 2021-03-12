@@ -59,8 +59,6 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
-USER_DIRECTORY="/home/${LINUX_USERNAME}"
-USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
 
 function configure-firewall() {
   if [ -x "$(command -v sshd)" ]; then
@@ -110,6 +108,8 @@ function create-user() {
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
+    USER_DIRECTORY="/home/${LINUX_USERNAME}"
+    USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
     if [ ! -d "${USER_SSH_FOLDER}" ]; then
       mkdir -p "${USER_SSH_FOLDER}"
       chmod 700 "${USER_SSH_FOLDER}"
