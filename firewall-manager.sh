@@ -86,7 +86,7 @@ function configure-firewall() {
       AllowTcpForwarding no
       PermitTunnel no
       AcceptEnv LANG LC_*
-      Subsystem       sftp    /usr/lib/openssh/sftp-server" >>${SSHD_CONFIG}
+      Subsystem sftp /usr/lib/openssh/sftp-server" >>${SSHD_CONFIG}
     fi
   fi
   # UFW
