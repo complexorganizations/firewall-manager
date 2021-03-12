@@ -110,14 +110,12 @@ function create-user() {
     usermod -aG sudo "${LINUX_USERNAME}"
     USER_DIRECTORY="/home/${LINUX_USERNAME}"
     USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
-    if [ ! -d "${USER_SSH_FOLDER}" ]; then
-      mkdir -p "${USER_SSH_FOLDER}"
-      chmod 700 "${USER_SSH_FOLDER}"
-      ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
-      echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
-      chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
-      chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
-    fi
+    mkdir -p "${USER_SSH_FOLDER}"
+    chmod 700 "${USER_SSH_FOLDER}"
+    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+    echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
+    chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
+    chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
     PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
     PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
     echo "Linux Information"
