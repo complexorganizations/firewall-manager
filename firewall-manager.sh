@@ -67,7 +67,7 @@ function configure-firewall() {
     fi
     if [ ! -f "${SSHD_CONFIG}" ]; then
       echo "Port 22
-      PermitRootLogin prohibit-password
+      PermitRootLogin no
       MaxAuthTries 3
       PasswordAuthentication no
       PermitEmptyPasswords no
@@ -113,13 +113,13 @@ function create-user() {
     if [ ! -d "${USER_SSH_FOLDER}" ]; then
       mkdir -p "${USER_SSH_FOLDER}"
       chmod 700 "${USER_SSH_FOLDER}"
-      chown "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_SSH_FOLDER}"
+      ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+      echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
+      chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
+      chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
     fi
-    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
     PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
     PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
-    echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
-    chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     echo "Linux Information"
     echo "IP: ${SERVER_HOST}"
     echo "Username: ${LINUX_USERNAME}"
