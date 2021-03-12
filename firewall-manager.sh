@@ -59,6 +59,9 @@ NGINX_CONFIG="/etc/nginx/nginx.conf"
 FIRWALL_MANAGER_PATH="/etc/firewall-manager"
 FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
+if [ -z "${SERVER_HOST}" ]; then
+  SERVER_HOST="0.0.0.0" 
+fi
 
 function configure-firewall() {
   if [ -x "$(command -v sshd)" ]; then
@@ -113,11 +116,11 @@ function create-user() {
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
     ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
+    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
-    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
-    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
     echo "Linux Information"
     echo "IP: ${SERVER_HOST}"
     echo "Username: ${LINUX_USERNAME}"
