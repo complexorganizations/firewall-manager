@@ -132,15 +132,18 @@ function create-user() {
     USER_GPG_FOLDER="${USER_DIRECTORY}/.gpg"
     mkdir -p "${USER_GPG_FOLDER}"
     chmod 700 "${USER_GPG_FOLDER}"
-    GENKEY_FILE_PATH="${USER_GPG_FOLDER}/genkey"
-    echo "Key-Type: 9
-Subkey-Type:
+    gpg --full-generate-key --expert --batch <<EOF
+Key-Type: eddsa
+Key-Curve: ed25519
+Key-Usage: sign
+Subkey-Type: ecdh
+Subkey-Curve: cv25519
+Subkey-Usage: encrypt
+Passphrase: ${GPG_LINUX_PASSWORD}
 Name-Real: ${LINUX_USERNAME}
 Name-Email: ${USER_REAL_EMAIL}
 Expire-Date: 0
-Passphrase: ${GPG_LINUX_PASSWORD}" >> ${GENKEY_FILE_PATH}
-    gpg --expert --full-generate-key --batch ${GENKEY_FILE_PATH}
-    rm -f ${GENKEY_FILE_PATH}
+EOF
     echo "Linux Information"
     echo "External IP: ${SERVER_HOST}"
     echo "Internal IP: ${INTERNAL_SERVER_HOST}"
