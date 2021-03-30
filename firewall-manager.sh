@@ -107,12 +107,6 @@ configure-firewall
 
 function create-user() {
   if [ ! -f "${FIRWALL_MANAGER}" ]; then
-      if [ -z "${USER_REAL_EMAIL}" ]; then
-        read -rp "Please type in your email : " -e USER_REAL_EMAIL
-      fi
-      if [ -z "${USER_REAL_EMAIL}" ]; then
-        USER_REAL_EMAIL="$(openssl rand -hex 25)"
-      fi
     LINUX_USERNAME="$(openssl rand -hex 16)"
     LINUX_PASSWORD="$(openssl rand -hex 250)"
     GPG_LINUX_PASSWORD="$(openssl rand -hex 250)"
@@ -123,7 +117,7 @@ function create-user() {
     USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
-    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${USER_REAL_EMAIL}"
+    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
     PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/public_id_ssh_ed25519)"
     PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/private_id_ssh_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
@@ -138,13 +132,13 @@ Subkey-Curve: cv25519
 Subkey-Usage: encrypt
 Passphrase: ${GPG_LINUX_PASSWORD}
 Name-Real: ${LINUX_USERNAME}
-Name-Email: ${USER_REAL_EMAIL}
+Name-Email: ${LINUX_USERNAME}@${SERVER_HOST}
 Expire-Date: 0
 EOF
     PUBLIC_GPG_KEY="${USER_SSH_FOLDER}/public_id_gpg_ed25519"
     PRIVATE_GPG_KEY="${USER_SSH_FOLDER}/private_id_gpg_ed25519"
-    gpg --output "${PUBLIC_GPG_KEY}" --armor --export "${USER_REAL_EMAIL}"
-    gpg --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${USER_REAL_EMAIL}" --passphrase "${GPG_LINUX_PASSWORD}"
+    gpg --output "${PUBLIC_GPG_KEY}" --armor --export "${LINUX_USERNAME}@${SERVER_HOST}"
+    gpg --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${LINUX_USERNAME}@${SERVER_HOST}" --passphrase "${GPG_LINUX_PASSWORD}"
     echo "Linux SSH Information"
     echo "External IP: ${SERVER_HOST}"
     echo "Internal IP: ${INTERNAL_SERVER_HOST}"
