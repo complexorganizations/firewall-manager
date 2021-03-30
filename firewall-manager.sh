@@ -124,8 +124,8 @@ function create-user() {
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
     ssh-keygen -o -a 5000 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
-    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
-    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
+    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/public_id_ssh_ed25519)"
+    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/private_id_ssh_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
@@ -141,6 +141,8 @@ Name-Real: ${LINUX_USERNAME}
 Name-Email: ${USER_REAL_EMAIL}
 Expire-Date: 0
 EOF
+    gpg --output ${USER_SSH_FOLDER}/public_id_gpg_ed25519 --armor --export ${USER_REAL_EMAIL}
+    gpg --output ${USER_SSH_FOLDER}/private_id_gpg_ed25519 --armor --export-secret-key ${USER_REAL_EMAIL}
     echo "Linux Information"
     echo "External IP: ${SERVER_HOST}"
     echo "Internal IP: ${INTERNAL_SERVER_HOST}"
