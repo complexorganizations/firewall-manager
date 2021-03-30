@@ -141,8 +141,8 @@ Name-Real: ${LINUX_USERNAME}
 Name-Email: ${USER_REAL_EMAIL}
 Expire-Date: 0
 EOF
-    PUBLIC_GPG_KEY="${USER_SSH_FOLDER}"/public_id_gpg_ed25519"
-    PRIVATE_GPG_KEY="${USER_SSH_FOLDER}"/private_id_gpg_ed25519"
+    PUBLIC_GPG_KEY="${USER_SSH_FOLDER}/public_id_gpg_ed25519"
+    PRIVATE_GPG_KEY="${USER_SSH_FOLDER}/private_id_gpg_ed25519"
     gpg --output "${PUBLIC_GPG_KEY}" --armor --export "${USER_REAL_EMAIL}"
     gpg --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${USER_REAL_EMAIL}" --passphrase "${GPG_LINUX_PASSWORD}"
     echo "Linux SSH Information"
