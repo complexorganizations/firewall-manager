@@ -107,8 +107,15 @@ configure-firewall
 
 function create-user() {
   if [ ! -f "${FIRWALL_MANAGER}" ]; then
+      if [ -z "${USER_REAL_EMAIL}" ]; then
+        read -rp "Please type in your email : " -e USER_REAL_EMAIL
+      fi
+      if [ -z "${USER_REAL_EMAIL}" ]; then
+        USER_REAL_EMAIL="$(openssl rand -hex 25)"
+      fi
     LINUX_USERNAME="$(openssl rand -hex 16)"
     LINUX_PASSWORD="$(openssl rand -hex 250)"
+    GPG_LINUX_PASSWORD="$(openssl rand -hex 250)"
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
@@ -122,8 +129,18 @@ function create-user() {
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
-    # GPG
-    
+    USER_GPG_FOLDER="${USER_DIRECTORY}/.gpg"
+    mkdir -p "${USER_GPG_FOLDER}"
+    chmod 700 "${USER_GPG_FOLDER}"
+    GENKEY_FILE_PATH="${USER_GPG_FOLDER}/genkey"
+    echo "Key-Type: 9
+Subkey-Type: 1
+Name-Real: ${LINUX_USERNAME}
+Name-Email: ${USER_REAL_EMAIL}
+Expire-Date: 0
+Passphrase: ${GPG_LINUX_PASSWORD}" >> ${GENKEY_FILE_PATH}
+    gpg --expert --full-generate-key --batch ${GENKEY_FILE_PATH}
+    rm -f ${GENKEY_FILE_PATH}
     echo "Linux Information"
     echo "External IP: ${SERVER_HOST}"
     echo "Internal IP: ${INTERNAL_SERVER_HOST}"
