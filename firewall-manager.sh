@@ -129,9 +129,6 @@ function create-user() {
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
-    USER_GPG_FOLDER="${USER_DIRECTORY}/.gpg"
-    mkdir -p "${USER_GPG_FOLDER}"
-    chmod 700 "${USER_GPG_FOLDER}"
     gpg --full-generate-key --expert --batch <<EOF
 Key-Type: eddsa
 Key-Curve: ed25519
