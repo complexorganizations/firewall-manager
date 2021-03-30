@@ -147,8 +147,8 @@ EOF
     echo "Public Key: ${PUBLIC_SSH_KEY}"
     echo "Private Key: ${PRIVATE_SSH_KEY}"
     echo "Linux GPG Information"
-    echo "Public Key: $(cat ${PUBLIC_GPG_KEY})"
-    echo "Private Key: $(cat ${PRIVATE_GPG_KEY})"
+    echo "Public Key: $(cat "${PUBLIC_GPG_KEY}")"
+    echo "Private Key: $(cat "${PRIVATE_GPG_KEY}")"
     echo "Passphrase: ${GPG_LINUX_PASSWORD}"
   fi
 }
