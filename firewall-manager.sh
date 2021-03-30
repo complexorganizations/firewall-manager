@@ -134,7 +134,7 @@ function create-user() {
     chmod 700 "${USER_GPG_FOLDER}"
     GENKEY_FILE_PATH="${USER_GPG_FOLDER}/genkey"
     echo "Key-Type: 9
-Subkey-Type: 1
+Subkey-Type:
 Name-Real: ${LINUX_USERNAME}
 Name-Email: ${USER_REAL_EMAIL}
 Expire-Date: 0
