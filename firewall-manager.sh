@@ -27,22 +27,22 @@ dist-check
 # Install the firewall
 function install-firewall() {
   if { [ "${DISTRO}" == "ubuntu" ] || [ "${DISTRO}" == "debian" ] || [ "${DISTRO}" == "raspbian" ] || [ "${DISTRO}" == "pop" ] || [ "${DISTRO}" == "kali" ] || [ "${DISTRO}" == "linuxmint" ] || [ "${DISTRO}" == "fedora" ] || [ "${DISTRO}" == "centos" ] || [ "${DISTRO}" == "rhel" ] || [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "manjaro" ] || [ "${DISTRO}" == "alpine" ] || [ "${DISTRO}" == "freebsd" ]; }; then
-    if { [ ! -x "$(command -v sed)" ] || [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v jq)" ] || [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ] || [ ! -x "$(command -v openssl)" ] || [ ! -x "$(command -v lsof)" ]; }; then
+    if { [ ! -x "$(command -v sed)" ] || [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v jq)" ] || [ ! -x "$(command -v ufw)" ] || [ ! -x "$(command -v fail2ban)" ] || [ ! -x "$(command -v ssh)" ] || [ ! -x "$(command -v openssl)" ] || [ ! -x "$(command -v lsof)" ] || [ ! -x "$(command -v gpg)" ]; }; then
       if { [ "${DISTRO}" == "ubuntu" ] || [ "${DISTRO}" == "debian" ] || [ "${DISTRO}" == "raspbian" ] || [ "${DISTRO}" == "pop" ] || [ "${DISTRO}" == "kali" ] || [ "${DISTRO}" == "linuxmint" ]; }; then
         apt-get update
-        apt-get install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof -y
+        apt-get install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof gpg -y
       elif { [ "${DISTRO}" == "fedora" ] || [ "${DISTRO}" == "centos" ] || [ "${DISTRO}" == "rhel" ]; }; then
         yum update -y
-        yum install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof -y
+        yum install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof gpg -y
       elif { [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "manjaro" ]; }; then
         pacman -Syu
-        pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof
+        pacman -Syu --noconfirm haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof gpg
       elif [ "${DISTRO}" == "alpine" ]; then
         apk update
-        apk add haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof
+        apk add haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof gpg
       elif [ "${DISTRO}" == "freebsd" ]; then
         pkg update
-        pkg install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof
+        pkg install haveged fail2ban ufw lsof openssh-server openssh-client openssl jq curl sed lsof gpg
       fi
     fi
   else
@@ -107,8 +107,8 @@ configure-firewall
 
 function create-user() {
   if [ ! -f "${FIRWALL_MANAGER}" ]; then
-    LINUX_USERNAME="$(openssl rand -hex 5)"
-    LINUX_PASSWORD="$(openssl rand -hex 10)"
+    LINUX_USERNAME="$(openssl rand -hex 16)"
+    LINUX_PASSWORD="$(openssl rand -hex 250)"
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
@@ -116,12 +116,14 @@ function create-user() {
     USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
-    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+    ssh-keygen -o -a 5000 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
     PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519.pub)"
     PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
+    # GPG
+    
     echo "Linux Information"
     echo "External IP: ${SERVER_HOST}"
     echo "Internal IP: ${INTERNAL_SERVER_HOST}"
