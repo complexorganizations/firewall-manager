@@ -123,7 +123,7 @@ function create-user() {
     USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
-    ssh-keygen -o -a 5000 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+    ssh-keygen -o -a 5000 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${USER_REAL_EMAIL}"
     PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/public_id_ssh_ed25519)"
     PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/private_id_ssh_ed25519)"
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
