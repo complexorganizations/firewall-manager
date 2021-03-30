@@ -135,8 +135,10 @@ function create-user() {
     gpg --full-generate-key --expert --batch <<EOF
 Key-Type: eddsa
 Key-Curve: ed25519
+Key-Usage: sign
 Subkey-Type: ecdh
 Subkey-Curve: cv25519
+Subkey-Usage: encrypt
 Passphrase: ${GPG_LINUX_PASSWORD}
 Name-Real: ${LINUX_USERNAME}
 Name-Email: ${USER_REAL_EMAIL}
