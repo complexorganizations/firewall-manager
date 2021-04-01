@@ -117,9 +117,9 @@ function create-user() {
     USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
-    ssh-keygen -o -a 2500 -t ed25519 -f "${USER_SSH_FOLDER}"/id_ed25519 -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
-    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/public_id_ssh_ed25519)"
-    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/private_id_ssh_ed25519)"
+    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ssh_ed25519)"
+    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ssh_ed25519.pub)"
+    ssh-keygen -o -a 2500 -t ed25519 -f "${PRIVATE_SSH_KEY}" -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
     echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
     chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
@@ -135,8 +135,8 @@ Name-Real: ${LINUX_USERNAME}
 Name-Email: ${LINUX_USERNAME}@${SERVER_HOST}
 Expire-Date: 0
 EOF
-    PUBLIC_GPG_KEY="${USER_SSH_FOLDER}/public_id_gpg_ed25519"
-    PRIVATE_GPG_KEY="${USER_SSH_FOLDER}/private_id_gpg_ed25519"
+    PUBLIC_GPG_KEY="${USER_SSH_FOLDER}/id_gpg_ed25519.pub"
+    PRIVATE_GPG_KEY="${USER_SSH_FOLDER}/id_gpg_ed25519"
     gpg --output "${PUBLIC_GPG_KEY}" --armor --export "${LINUX_USERNAME}@${SERVER_HOST}"
     # gpg --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${LINUX_USERNAME}@${SERVER_HOST}"
     echo "Linux SSH Information"
