@@ -117,11 +117,12 @@ function create-user() {
     USER_SSH_FOLDER="${USER_DIRECTORY}/.ssh"
     mkdir -p "${USER_SSH_FOLDER}"
     chmod 700 "${USER_SSH_FOLDER}"
-    PRIVATE_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ssh_ed25519)"
-    PUBLIC_SSH_KEY="$(cat "${USER_SSH_FOLDER}"/id_ssh_ed25519.pub)"
+    PRIVATE_SSH_KEY="${USER_SSH_FOLDER}/id_ssh_ed25519"
+    PUBLIC_SSH_KEY="${USER_SSH_FOLDER}/id_ssh_ed25519.pub"
+    AUTHORIZED_KEY="${USER_SSH_FOLDER}/authorized_keys"
     ssh-keygen -o -a 2500 -t ed25519 -f "${PRIVATE_SSH_KEY}" -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
-    echo "${PUBLIC_SSH_KEY}" >>"${USER_SSH_FOLDER}"/authorized_keys
-    chmod 600 "${USER_SSH_FOLDER}"/authorized_keys
+    echo "${PUBLIC_SSH_KEY}" >>"${AUTHORIZED_KEY}"
+    chmod 600 "${AUTHORIZED_KEY}"
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
     gpg --full-generate-key --expert --batch <<EOF
 Key-Type: eddsa
@@ -144,8 +145,8 @@ EOF
     echo "Internal IP: ${INTERNAL_SERVER_HOST}"
     echo "Username: ${LINUX_USERNAME}"
     echo "Password: ${LINUX_PASSWORD}"
-    echo "Public Key: ${PUBLIC_SSH_KEY}"
-    echo "Private Key: ${PRIVATE_SSH_KEY}"
+    echo "Public Key: $(cat ${PUBLIC_SSH_KEY})"
+    echo "Private Key: $(cat ${PRIVATE_SSH_KEY})"
     echo "Linux GPG Information"
     echo "Public Key: $(cat "${PUBLIC_GPG_KEY}")"
     echo "Private Key: $(cat "${PRIVATE_GPG_KEY}")"
