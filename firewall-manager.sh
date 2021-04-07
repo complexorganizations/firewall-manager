@@ -121,7 +121,7 @@ function create-user() {
     PUBLIC_SSH_KEY="${USER_SSH_FOLDER}/id_ssh_ed25519.pub"
     AUTHORIZED_KEY="${USER_SSH_FOLDER}/authorized_keys"
     ssh-keygen -o -a 2500 -t ed25519 -f "${PRIVATE_SSH_KEY}" -N "${LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
-    "$(cat "${PUBLIC_SSH_KEY}")" >>"${AUTHORIZED_KEY}"
+    cat "${PRIVATE_SSH_KEY}" >> "${AUTHORIZED_KEY}"
     chmod 600 "${AUTHORIZED_KEY}"
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
     gpg --full-generate-key --expert --batch <<EOF
