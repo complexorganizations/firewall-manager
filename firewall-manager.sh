@@ -107,7 +107,7 @@ configure-firewall
 
 function create-user() {
   if [ ! -f "${FIRWALL_MANAGER}" ]; then
-    LINUX_USERNAME="$(openssl rand -hex 16)"
+    LINUX_USERNAME="$(openssl rand -hex 10)"
     LINUX_PASSWORD="$(openssl rand -hex 25)"
     GPG_LINUX_PASSWORD="$(openssl rand -hex 25)"
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
