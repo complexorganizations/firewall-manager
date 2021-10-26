@@ -56,8 +56,6 @@ install-firewall
 
 SSHD_CONFIG="/etc/ssh/sshd_config"
 NGINX_CONFIG="/etc/nginx/nginx.conf"
-FIRWALL_MANAGER_PATH="/etc/firewall-manager"
-FIRWALL_MANAGER="${FIRWALL_MANAGER_PATH}/firewall-manager"
 SERVER_HOST="$(curl -4 -s 'https://api.ipengine.dev' | jq -r '.network.ip')"
 INTERNAL_SERVER_HOST="$(ip route get 8.8.8.8 | grep src | sed 's/.*src \(.* \)/\1/g' | cut -f1 -d ' ')"
 if [ -z "${SERVER_HOST}" ]; then
@@ -155,17 +153,6 @@ EOF
 }
 
 create-user
-
-function firwall-manager() {
-  if [ ! -d "${FIRWALL_MANAGER_PATH}" ]; then
-    mkdir -p ${FIRWALL_MANAGER_PATH}
-    if [ ! -f "${FIRWALL_MANAGER}" ]; then
-      echo "Firewall Manager: True" >>${FIRWALL_MANAGER}
-    fi
-  fi
-}
-
-firwall-manager
 
 function enable-service() {
   if [ -x "$(command -v ssh)" ]; then
