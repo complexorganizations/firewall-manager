@@ -105,10 +105,11 @@ configure-firewall
 
 function create-user() {
   if [ ! -f "${FIRWALL_MANAGER}" ]; then
+    RANDOM_SYSTEM_ID="$(openssl rand -hex 50)"
     LINUX_USERNAME="$(openssl rand -hex 16)"
-    LINUX_PASSWORD="$(openssl rand -hex 25)"
-    GPG_LINUX_PASSWORD="$(openssl rand -hex 25)"
-    SSH_LINUX_PASSWORD="$(openssl rand -hex 25)"
+    LINUX_PASSWORD="$(openssl rand -hex 50)"
+    GPG_LINUX_PASSWORD="$(openssl rand -hex 50)"
+    SSH_LINUX_PASSWORD="$(openssl rand -hex 50)"
     useradd -m -s /bin/bash "${LINUX_USERNAME}"
     echo -e "${LINUX_PASSWORD}\n${LINUX_PASSWORD}" | passwd "${LINUX_USERNAME}"
     usermod -aG sudo "${LINUX_USERNAME}"
@@ -119,7 +120,7 @@ function create-user() {
     PRIVATE_SSH_KEY="${USER_SSH_FOLDER}/id_ssh_ed25519"
     PUBLIC_SSH_KEY="${USER_SSH_FOLDER}/id_ssh_ed25519.pub"
     AUTHORIZED_KEY="${USER_SSH_FOLDER}/authorized_keys"
-    ssh-keygen -o -a 2500 -t ed25519 -f "${PRIVATE_SSH_KEY}" -N "${SSH_LINUX_PASSWORD}" -C "${LINUX_USERNAME}@${SERVER_HOST}"
+    ssh-keygen -o -a 5000 -t ed25519 -f "${PRIVATE_SSH_KEY}" -N "${SSH_LINUX_PASSWORD}" -C "${RANDOM_SYSTEM_ID}"
     cat "${PUBLIC_SSH_KEY}" >>"${AUTHORIZED_KEY}"
     chmod 600 "${AUTHORIZED_KEY}"
     chown -R "${LINUX_USERNAME}":"${LINUX_USERNAME}" "${USER_DIRECTORY}"
@@ -139,6 +140,7 @@ EOF
     PRIVATE_GPG_KEY="${USER_SSH_FOLDER}/id_gpg_ed25519"
     gpg --output "${PUBLIC_GPG_KEY}" --armor --export "${LINUX_USERNAME}@${SERVER_HOST}"
     #gpg --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${LINUX_USERNAME}@${SERVER_HOST}"
+    echo "Random System ID: ${RANDOM_SYSTEM_ID}"
     echo "System External IP: ${SERVER_HOST}"
     echo "System Internal IP: ${INTERNAL_SERVER_HOST}"
     echo "Linux Username: ${LINUX_USERNAME}"
