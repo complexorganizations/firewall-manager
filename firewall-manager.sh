@@ -139,7 +139,7 @@ EOF
     PUBLIC_GPG_KEY="${USER_SSH_FOLDER}/id_gpg_ed25519.pub"
     PRIVATE_GPG_KEY="${USER_SSH_FOLDER}/id_gpg_ed25519"
     gpg --output "${PUBLIC_GPG_KEY}" --armor --export "${LINUX_USERNAME}@${SERVER_HOST}"
-    #gpg --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${LINUX_USERNAME}@${SERVER_HOST}"
+    gpg --pinentry-mode=loopback --passphrase "${GPG_LINUX_PASSWORD}" --output "${PRIVATE_GPG_KEY}" --armor --export-secret-key "${LINUX_USERNAME}@${SERVER_HOST}"
     echo "Random System ID: ${RANDOM_SYSTEM_ID}"
     echo "System External IP: ${SERVER_HOST}"
     echo "System Internal IP: ${INTERNAL_SERVER_HOST}"
